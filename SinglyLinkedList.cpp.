@@ -1,103 +1,105 @@
 #include <iostream>
 
-// Define the structure for a Node in the linked list
+// Define the structure of a Node in the singly linked list
 struct Node {
-    int data;    // Data stored in the node
-    Node* next;  // Pointer to the next node in the list
+    int data;      // The data stored in the node
+    Node* next;    // Pointer to the next node in the list
 };
 
-// Define the SinglyLinkedList class
+// Class representing a singly linked list
 class SinglyLinkedList {
 private:
-    Node* head;  // Pointer to the head (first node) of the list
+    Node* head;    // Pointer to the first node (head) of the list
 
 public:
-    // Constructor to initialize the linked list with an empty head
+    // Constructor to initialize an empty list
     SinglyLinkedList() : head(nullptr) {}
 
-    // Function to insert a node with given data at a specific index
+    // Function to insert a new node with 'data' at the given 'index'
     int insert(int data, int index) {
-        // Create a new node and allocate memory for it
+        // Create a new node and assign the data
         Node* newNode = new Node();
-        newNode->data = data;    // Set the data for the new node
-        newNode->next = nullptr; // Initialize the next pointer to nullptr
+        newNode->data = data;
+        newNode->next = nullptr;
 
-        // Check if the index is valid (non-negative)
+        // Check if the index is invalid (negative)
         if (index < 0) {
-            return -1;  // Return -1 to indicate an invalid index
+            return -1; // Return -1 to indicate failure due to invalid index
         }
 
-        // If the node is to be inserted at the beginning of the list
+        // Special case: Insertion at the head of the list
         if (index == 0) {
-            newNode->next = head; // Make the new node point to the current head
-            head = newNode;       // Update the head to point to the new node
-            return 0;             // Return 0 to indicate success
+            newNode->next = head; // New node points to the current head
+            head = newNode;       // Update head to the new node
+            return 0; // Return 0 to indicate success
         }
 
-        // Traverse the list to find the node before the insertion point
-        Node* temp = head;
-        for (int i = 0; i < index - 1; ++i) {
-            if (temp == nullptr) {
-                return -1; // Return -1 if the index is out of bounds
-            }
-            temp = temp->next; // Move to the next node
+        // Traverse the list to find the node after which we want to insert
+        Node* current = head;
+        int currentIndex = 0;
+
+        // Continue traversing until we reach the node just before the desired index
+        while (current != nullptr && currentIndex < index - 1) {
+            current = current->next;
+            currentIndex++;
         }
 
-        // Check if the node to be inserted is at the end of the list
-        if (temp == nullptr) {
-            return -1; // Return -1 if the index is out of bounds
+        // If we reach the end of the list before the desired index, the index is out of bounds
+        if (current == nullptr) {
+            return -1; // Return -1 to indicate failure due to index out of bounds
         }
 
-        // Insert the new node at the specified index
-        newNode->next = temp->next; // Point the new node to the next node in the list
-        temp->next = newNode;       // Point the previous node to the new node
+        // Insert the new node by adjusting pointers
+        newNode->next = current->next; // New node points to the node after 'current'
+        current->next = newNode;       // 'current' now points to the new node
 
-        return 0; // Return 0 to indicate successful insertion
+        return 0; // Return 0 to indicate success
     }
 
-    // Function to delete a node at a specific index
-    int remove(int index) {
+    // Function to delete the node at the given 'index'
+    int deleteNode(int index) {
         // Check if the list is empty or if the index is invalid
         if (head == nullptr || index < 0) {
-            return -1;  // Return -1 to indicate an error
+            return -1; // Return -1 to indicate failure due to empty list or invalid index
         }
 
-        Node* temp = head; // Pointer to traverse the list
-
-        // If the node to be deleted is the first node
+        // Special case: Deletion at the head of the list
         if (index == 0) {
-            head = head->next; // Update the head to the next node
-            delete temp;       // Free the memory of the old head node
-            return 0;          // Return 0 to indicate successful deletion
+            Node* temp = head;    // Temporarily store the head node
+            head = head->next;    // Update head to point to the next node
+            delete temp;          // Delete the old head node
+            return 0; // Return 0 to indicate success
         }
 
-        // Traverse the list to find the node before the deletion point
-        for (int i = 0; i < index - 1; ++i) {
-            if (temp == nullptr || temp->next == nullptr) {
-                return -1; // Return -1 if the index is out of bounds
-            }
-            temp = temp->next; // Move to the next node
+        // Traverse the list to find the node just before the one we want to delete
+        Node* current = head;
+        int currentIndex = 0;
+
+        // Continue traversing until we reach the node just before the desired index
+        while (current != nullptr && currentIndex < index - 1) {
+            current = current->next;
+            currentIndex++;
         }
 
-        // Check if the node to be deleted is the last node or out of bounds
-        Node* nodeToDelete = temp->next;
-        if (nodeToDelete == nullptr) {
-            return -1; // Return -1 if the index is out of bounds
+        // If we reach the end of the list before the desired index, the index is out of bounds
+        if (current == nullptr || current->next == nullptr) {
+            return -1; // Return -1 to indicate failure due to index out of bounds
         }
 
-        // Delete the node by updating the pointers
-        temp->next = nodeToDelete->next; // Point the previous node to the node after the one to be deleted
-        delete nodeToDelete;             // Free the memory of the deleted node
+        // Adjust pointers to delete the node
+        Node* temp = current->next; // Temporarily store the node to be deleted
+        current->next = temp->next; // 'current' now skips over 'temp' to the next node
+        delete temp;                // Delete the node
 
-        return 0; // Return 0 to indicate successful deletion
+        return 0; // Return 0 to indicate success
     }
 
-    // Function to display the list (for testing purposes)
-    void display() {
-        Node* temp = head; // Pointer to traverse the list
-        while (temp != nullptr) { // Traverse until the end of the list
-            std::cout << temp->data << " -> "; // Print the data of the current node
-            temp = temp->next; // Move to the next node
+    // Function to display the contents of the list
+    void display() const {
+        Node* current = head; // Start at the head of the list
+        while (current != nullptr) { // Traverse until the end of the list
+            std::cout << current->data << " -> "; // Print the data of each node
+            current = current->next;             // Move to the next node
         }
         std::cout << "NULL" << std::endl; // Indicate the end of the list
     }
@@ -105,15 +107,26 @@ public:
 
 // Main function to test the SinglyLinkedList class
 int main() {
-    SinglyLinkedList list;     // Create a new singly linked list
-    list.insert(10, 0);        // Insert 10 at index 0
-    list.insert(20, 1);        // Insert 20 at index 1
-    list.insert(30, 2);        // Insert 30 at index 2
-    list.display();            // Display the list: 10 -> 20 -> 30 -> NULL
+    SinglyLinkedList list;
 
-    list.remove(1);            // Delete the node at index 1 (20)
-    list.display();            // Display the list: 10 -> 30 -> NULL
+    // Insert nodes into the list
+    list.insert(10, 0); // Insert 10 at index 0 (beginning)
+    list.insert(20, 1); // Insert 20 at index 1 (end)
+    list.insert(30, 2); // Insert 30 at index 2 (end)
+    list.insert(15, 1); // Insert 15 at index 1 (middle)
 
-    return 0; // successful execution
+    // Display the list after insertions
+    std::cout << "List after insertions: ";
+    list.display();
+
+    // Delete a node from the list
+    list.deleteNode(2); // Delete the node at index 2
+
+    // Display the list after deletion
+    std::cout << "List after deletion: ";
+    list.display();
+
+    return 0;
 }
+
 
