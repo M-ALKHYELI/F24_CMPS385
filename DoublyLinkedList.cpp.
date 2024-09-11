@@ -1,0 +1,138 @@
+#include <iostream>
+using namespace std;
+
+// Define the structure of a node in the doubly linked list
+struct Node {
+    int data;    // Data part of the node
+    Node* prev;  // Pointer to the previous node
+    Node* next;  // Pointer to the next node
+    
+    // Constructor to initialize the node with data and null pointers
+    Node(int value) : data(value), prev(nullptr), next(nullptr) {}
+};
+
+// Define the doubly linked list class
+class DoublyLinkedList {
+private:
+    Node* head; // Pointer to the head (first node) of the list
+    Node* tail; // Pointer to the tail (last node) of the list
+
+public:
+    // Constructor to initialize an empty list
+    DoublyLinkedList() : head(nullptr), tail(nullptr) {}
+
+    // Function to insert a node at a specific index
+    int DoublyInsert(int data, int index, Node*& ptr) {
+        Node* newNode = new Node(data); // Create a new node
+        if (index < 0) return -1;       // Return -1 if the index is invalid
+
+        // Case 1: Insertion at the beginning (index 0)
+        if (index == 0) {
+            if (!head) { // If the list is empty
+                head = tail = newNode; // New node becomes both head and tail
+            } else { // List is not empty
+                newNode->next = head; // New node's next points to the old head
+                head->prev = newNode; // Old head's previous points to the new node
+                head = newNode;       // New node becomes the head
+            }
+            return 0; // Successful insertion
+        }
+
+        // Case 2: Insertion at a specified index other than 0
+        Node* current = head;
+        int count = 0;
+        
+        // Traverse the list to find the desired index
+        while (current != nullptr && count < index) {
+            current = current->next;
+            count++;
+        }
+
+        if (count == index) { // Valid index found
+            if (current == nullptr) { // Insertion at the end
+                tail->next = newNode;   // Old tail's next points to the new node
+                newNode->prev = tail;   // New node's previous points to the old tail
+                tail = newNode;         // New node becomes the tail
+            } else { // Insertion in between
+                Node* prevNode = current->prev;
+                newNode->next = current;  // New node's next points to current node
+                newNode->prev = prevNode; // New node's prev points to previous node
+                prevNode->next = newNode; // Previous node's next points to the new node
+                current->prev = newNode;  // Current node's prev points to the new node
+            }
+            return 0; // Successful insertion
+        }
+        
+        return -1; // Index out of bounds
+    }
+
+    // Function to delete a node at a specific index
+    int DoublyDelete(int index, Node*& ptr) {
+        if (!head || index < 0) return -1; // Return -1 if the list is empty or the index is invalid
+
+        Node* current = head;
+        int count = 0;
+
+        // Case 1: Deletion at the beginning (index 0)
+        if (index == 0) {
+            Node* temp = head; // Store the current head to delete it
+            head = head->next; // Move the head pointer to the next node
+            if (head) head->prev = nullptr; // If list is not empty, update the new head's prev to nullptr
+            delete temp; // Delete the old head
+            if (!head) tail = nullptr; // If the list is now empty, set the tail to nullptr
+            return 0; // Successful deletion
+        }
+
+        // Traverse the list to find the node at the specified index
+        while (current != nullptr && count < index) {
+            current = current->next;
+            count++;
+        }
+
+        if (current != nullptr) { // Node at the given index found
+            if (current == tail) { // Case 2: Deleting the tail node
+                tail = current->prev; // Move the tail pointer to the previous node
+                tail->next = nullptr; // Set the new tail's next to nullptr
+            } else { // Case 3: Deleting a node in between
+                Node* prevNode = current->prev;
+                Node* nextNode = current->next;
+                prevNode->next = nextNode; // Previous node's next points to the next node
+                nextNode->prev = prevNode; // Next node's prev points to the previous node
+            }
+            delete current; // Delete the current node
+            return 0; // Successful deletion
+        }
+
+        return -1; // Index out of bounds
+    }
+
+    // Function to display the elements of the doubly linked list
+    void display() {
+        Node* temp = head;
+        while (temp != nullptr) {
+            cout << temp->data << " "; // Print the data of each node
+            temp = temp->next;         // Move to the next node
+        }
+        cout << endl;
+    }
+};
+
+int main() {
+    DoublyLinkedList list; // Create a doubly linked list
+    Node* ptr = nullptr;   // Pointer to be used in insert/delete operations
+    
+    // Insert elements into the list
+    list.DoublyInsert(10, 0, ptr); // Insert 10 at index 0
+    list.DoublyInsert(20, 1, ptr); // Insert 20 at index 1
+    list.DoublyInsert(30, 2, ptr); // Insert 30 at index 2
+    list.DoublyInsert(15, 1, ptr); // Insert 15 at index 1
+    cout << "List after insertion: ";
+    list.display(); // Display the list
+    
+    // Delete an element from the list
+    list.DoublyDelete(1, ptr); // Delete the element at index 1
+    cout << "List after deletion: ";
+    list.display(); // Display the list
+
+    return 0;
+}
